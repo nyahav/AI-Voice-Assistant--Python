@@ -11,6 +11,7 @@ from livekit.agents.multimodal import (
     
 )
 from livekit.plugins import openai
+from api import AssistantFnc
 from dotenv import load_dotenv
 import os
 
@@ -26,3 +27,10 @@ async def entrypoint(ctx: JobContext):
         temperature=0.8,
         modalities=["audio","text"]
     )
+    
+    assistant_fnc = AssistantFnc()
+    assistant = MultimodalAgent(
+        model=model,
+        fnc_ctx=assistant_fnc
+    )
+    assistant.start(ctx.room)
