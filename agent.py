@@ -12,7 +12,7 @@ from livekit.agents.multimodal import (
 )
 from livekit.plugins import openai
 from api import AssistantFnc
-from prompts import WELCOME_MESSAGE,INSTRUCTIONS
+from prompts import WELCOME_MESSAGE,INSTRUCTIONS,LOOKUP_VIN_MESSAGE
 from dotenv import load_dotenv
 import os
 
@@ -45,5 +45,31 @@ async def entrypoint(ctx: JobContext):
     )
     session.response.create()
     
+    @session.on("user_speech_committed")
+    def on_user_speech_committed(msg:llm.ChatMessage):
+        if isinstance(msg.content, list):
+            msg.content = "\n".join("[image]" if isinstance(x,llm.ChatImage) else x for x in msg)
+        
+        if assistant_fnc.has_car():
+            handle_query(msg)
+        else:
+            find_profile(msg)
+              
+    def find_profile(msg:llm.ChatMessage):
+        session.conversation.item.create(
+            llm.ChatMessage(
+                role="system",
+                content=LOOKUP_VIN_MESSAGE(msg)
+            )
+        )
+        session.response.create()
+    def handle_query(msg:llm.ChatMessage):
+        session.conversation.item.create(
+            llm.ChatMessage(
+                role="user",
+                content=msg.content
+            )
+        )
+        session.response.create()
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))
