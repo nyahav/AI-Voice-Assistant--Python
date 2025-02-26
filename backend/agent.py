@@ -11,8 +11,8 @@ from livekit.agents.multimodal import (
     
 )
 from livekit.plugins import openai
-from backend.api import AssistantFnc
-from backend.prompts import WELCOME_MESSAGE,INSTRUCTIONS,LOOKUP_VIN_MESSAGE
+from api import AssistantFnc
+from prompts import WELCOME_MESSAGE,INSTRUCTIONS,LOOKUP_VIN_MESSAGE
 from dotenv import load_dotenv
 import os
 
